@@ -1,0 +1,35 @@
+# Virtual Environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution
+build/
+dist/
+*.egg-info/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Environment variables
+.env
+
+# Kivy logs
+.kivy/
+
+# Python compiled files
+*.pyo
+*.pyd
+
+# PyInstaller
+*.spec

@@ -1,0 +1,126 @@
+#:import dp kivy.metrics.dp
+
+<ChatScreen>:
+
+    orientation: "vertical"
+    spacing: 0
+
+    canvas.before:
+        Color:
+            rgba: 0.13, 0.13, 0.15, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    # -----------------------------
+    # Header
+    # -----------------------------
+
+    BoxLayout:
+        size_hint_y: None
+        height: dp(60)
+        padding: dp(20), 0
+
+        canvas.before:
+            Color:
+                rgba: 0.10, 0.10, 0.12, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: "API Assistant"
+            font_size: "22sp"
+            bold: True
+            color: 1,1,1,1
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+    # -----------------------------
+    # Chat Area
+    # -----------------------------
+
+    ScrollView:
+        do_scroll_x: False
+
+        BoxLayout:
+            id: chat_area
+            orientation: "vertical"
+            spacing: dp(15)
+            padding: dp(30)
+            size_hint_y: None
+            height: self.minimum_height
+
+            Label:
+                text: "Welcome to API Assistant"
+                size_hint_y: None
+                height: self.texture_size[1]
+                font_size: "30sp"
+                bold: True
+                color: 1,1,1,1
+
+            Label:
+                text: "Ask me anything. I can connect to multiple public APIs."
+                size_hint_y: None
+                height: self.texture_size[1]
+                font_size: "18sp"
+                color: .7,.7,.75,1
+
+    # -----------------------------
+    # Input Bar
+    # -----------------------------
+
+    BoxLayout:
+
+        size_hint_y: None
+        height: dp(80)
+        padding: dp(15)
+        spacing: dp(10)
+
+        canvas.before:
+            Color:
+                rgba: 0.10,0.10,0.12,1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        TextInput:
+
+            id: message_input
+
+            multiline: False
+
+            hint_text: "Ask anything..."
+
+            background_normal: ""
+            background_active: ""
+
+            background_color: .20,.20,.22,1
+
+            foreground_color: 1,1,1,1
+
+            hint_text_color: .6,.6,.65,1
+
+            cursor_color: 1,1,1,1
+
+            padding: dp(15)
+
+        Button:
+
+            id: send_button
+
+            text: "Send"
+
+            size_hint_x: None
+
+            width: dp(120)
+
+            background_normal: ""
+            background_down: ""
+
+            background_color: .23,.47,.95,1
+
+            color: 1,1,1,1
+
+            bold: True
