@@ -1,11 +1,73 @@
 #:import dp kivy.metrics.dp
-#:import Sidebar app.widgets.sidebar.Sidebar
 
-<ChatScreen>
+<ChatScreen>:
 
     orientation: "horizontal"
 
-    Sidebar:
+    # ==========================================================
+    # SIDEBAR
+    # ==========================================================
+
+    BoxLayout:
+
+        orientation: "vertical"
+        size_hint_x: None
+        width: dp(250)
+        padding: dp(18)
+        spacing: dp(12)
+
+        canvas.before:
+            Color:
+                rgba: 0.10, 0.11, 0.13, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: "API Assistant"
+            font_size: "22sp"
+            bold: True
+            color: 1,1,1,1
+            size_hint_y: None
+            height: dp(45)
+
+        Button:
+            text: "+ New Chat"
+
+        Button:
+            text: "Home"
+
+        Button:
+            text: "Weather"
+
+        Button:
+            text: "News"
+
+        Button:
+            text: "Currency"
+
+        Button:
+            text: "Dictionary"
+
+        Button:
+            text: "NASA"
+
+        Button:
+            text: "Countries"
+
+        Button:
+            text: "Jokes"
+
+        Widget:
+
+        Button:
+            text: "Settings"
+            size_hint_y: None
+            height: dp(45)
+
+    # ==========================================================
+    # MAIN CONTENT
+    # ==========================================================
 
     BoxLayout:
 
@@ -13,111 +75,147 @@
 
         canvas.before:
             Color:
-                rgba:0.13,0.13,0.15,1
+                rgba: 0.15,0.16,0.19,1
             Rectangle:
-                pos:self.pos
-                size:self.size
+                pos: self.pos
+                size: self.size
 
-        ####################################################
-        ## Header
-        ####################################################
+        # ---------------- Header ----------------
+
+        BoxLayout:
+
+            size_hint_y: None
+            height: dp(65)
+            padding: dp(25), 0
+
+            canvas.before:
+                Color:
+                    rgba: 0.12,0.13,0.16,1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            Label:
+
+                text: "Welcome"
+
+                font_size: "22sp"
+
+                bold: True
+
+                color: 1,1,1,1
+
+                halign: "left"
+
+                valign: "middle"
+
+                text_size: self.size
+
+        # ---------------- Center ----------------
+
+        BoxLayout:
+
+            orientation: "vertical"
+
+            padding: dp(60)
+
+            spacing: dp(20)
+
+            Label:
+
+                text: "Welcome to API Assistant"
+
+                font_size: "34sp"
+
+                bold: True
+
+                color: 1,1,1,1
+
+                size_hint_y: None
+
+                height: self.texture_size[1]
+
+            Label:
+
+                text: "A modern desktop application powered by public APIs."
+
+                color: .75,.75,.78,1
+
+                font_size: "18sp"
+
+                size_hint_y: None
+
+                height: self.texture_size[1]
+
+            Label:
+
+                text: "Select an API from the sidebar or start typing below."
+
+                color: .62,.62,.65,1
+
+                font_size: "16sp"
+
+                size_hint_y: None
+
+                height: self.texture_size[1]
+
+            Widget:
+
+        # ---------------- Bottom ----------------
 
         BoxLayout:
 
             size_hint_y: None
 
-            height: dp(60)
+            height: dp(90)
 
-            padding: dp(20),0
+            padding: dp(18)
 
-            canvas.before:
-                Color:
-                    rgba:0.10,0.10,0.12,1
-                Rectangle:
-                    pos:self.pos
-                    size:self.size
-
-            Label:
-
-                text:"Welcome"
-
-                color:1,1,1,1
-
-                font_size:"22sp"
-
-                bold:True
-
-        ####################################################
-        ## Chat Area
-        ####################################################
-
-        BoxLayout:
-
-            orientation:"vertical"
-
-            padding:dp(40)
-
-            spacing:dp(15)
-
-            Label:
-
-                text:"Welcome to API Assistant"
-
-                font_size:"32sp"
-
-                bold:True
-
-                color:1,1,1,1
-
-                size_hint_y:None
-
-                height:self.texture_size[1]
-
-            Label:
-
-                text:"Your all-in-one API desktop assistant."
-
-                color:.7,.7,.75,1
-
-                font_size:"18sp"
-
-                size_hint_y:None
-
-                height:self.texture_size[1]
-
-            Widget:
-
-        ####################################################
-        ## Bottom Input
-        ####################################################
-
-        BoxLayout:
-
-            size_hint_y:None
-
-            height:dp(80)
-
-            padding:dp(15)
-
-            spacing:dp(10)
+            spacing: dp(15)
 
             canvas.before:
                 Color:
-                    rgba:.10,.10,.12,1
+                    rgba: 0.12,0.13,0.16,1
                 Rectangle:
-                    pos:self.pos
-                    size:self.size
+                    pos: self.pos
+                    size: self.size
 
             TextInput:
 
-                hint_text:"Ask me anything..."
+                multiline: False
 
-                multiline:False
+                hint_text: "Ask me anything..."
+
+                font_size: "17sp"
+
+                background_normal: ""
+
+                background_active: ""
+
+                background_color: .22,.23,.26,1
+
+                foreground_color: 1,1,1,1
+
+                hint_text_color: .6,.6,.65,1
+
+                cursor_color: 1,1,1,1
+
+                padding: dp(15)
 
             Button:
 
-                text:"Send"
+                text: "Send"
 
-                size_hint_x:None
+                size_hint_x: None
 
-                width:dp(120)
+                width: dp(130)
+
+                background_normal: ""
+
+                background_down: ""
+
+                background_color: .20,.45,.90,1
+
+                color: 1,1,1,1
+
+                bold: True

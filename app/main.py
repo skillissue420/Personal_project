@@ -17,9 +17,10 @@ class APIAssistant(App):
     def build(self):
         self.title = "API Assistant"
 
+        # Load the KV rules
         Builder.load_file("app/ui/chatbot.kv")
-        Builder.load_file("app/ui/sidebar.kv")
 
+        # Return the root widget
         return ChatScreen()
 
 
