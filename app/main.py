@@ -25,6 +25,7 @@ from threading import Thread
 import requests
 
 from app.api_router import fetch_feature
+from app.services.intent_detector import detect_intent, intent_query
 
 Window.fullscreen = False
 Window.size = (1024, 640)
@@ -48,13 +49,21 @@ class ChatScreen(BoxLayout):
     _typing_event = None
 
     def on_kv_post(self, _base_widget):
+        button_actions = {
+            "Home": self.new_chat, "Weather": lambda: self.load_feature("weather"),
+            "News": lambda: self.load_feature("news"), "Currency": lambda: self.load_feature("currency"),
+            "Dictionary": lambda: self.load_feature("dictionary"), "NASA": lambda: self.load_feature("nasa"),
+            "Countries": lambda: self.load_feature("countries"), "Jokes": lambda: self.load_feature("jokes"),
+        }
         for button in self.walk():
             if isinstance(button, ThemedNavButton) and "Main Chat" in button.text:
                 button.bind(on_release=lambda _button: self.open_main_chat())
                 continue
-            if isinstance(button, ThemedNavButton) and "Weather" in button.text:
-                button.bind(on_release=lambda _button: self.load_feature("weather"))
-                break
+            if isinstance(button, ThemedNavButton):
+                for label, action in button_actions.items():
+                    if label in button.text:
+                        button.bind(on_release=lambda _button, handler=action: handler())
+                        break
 
     def toggle_theme(self):
         self.dark_mode = not self.dark_mode
@@ -150,9 +159,12 @@ class ChatScreen(BoxLayout):
         if not query:
             return
         self.ids.query_input.text = ""
-        place = self._weather_location(query)
-        if place is not None:
-            self.load_feature("weather", place)
+        intent = detect_intent(query)
+        if intent == "weather":
+            self.load_feature("weather", self._weather_location(query))
+            return
+        if intent:
+            self.load_feature(intent, intent_query(intent, query))
             return
 
         self.page_title = "Main Chat"
@@ -161,17 +173,14 @@ class ChatScreen(BoxLayout):
             self.response_text = "Hello! Ask me about the weather in any city."
         else:
             self.response_text = (
-                "I do not have a general AI model connected yet, but I can check live weather. "
-                'Try: "What is the weather in Tokyo?"'
+                "I can route requests for weather, news, currency, definitions, NASA, countries, and jokes. "
+                'For example: "Convert USD to PHP" or "Define orbit".'
             )
 
     @staticmethod
     def _weather_location(query):
         """Return a place from a natural-language weather question, if present."""
         normalized = query.strip().rstrip("?!.")
-        if "weather" not in normalized.lower():
-            return None
-
         place_match = re.search(r"\b(?:in|at|for)\s+(.+)$", normalized, flags=re.IGNORECASE)
         if place_match:
             return place_match.group(1).strip()
