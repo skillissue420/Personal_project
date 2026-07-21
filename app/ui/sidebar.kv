@@ -1,0 +1,72 @@
+#:import dp kivy.metrics.dp
+
+<Sidebar>:
+
+    orientation: "vertical"
+
+    size_hint_x: None
+
+    width: dp(250)
+
+    spacing: dp(8)
+
+    padding: dp(15)
+
+    canvas.before:
+        Color:
+            rgba: 0.09,0.09,0.11,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    Label:
+        text: "API Assistant"
+
+        bold: True
+
+        font_size: "22sp"
+
+        size_hint_y: None
+
+        height: dp(60)
+
+        color: 1,1,1,1
+
+    Button:
+        text: "+ New Chat"
+
+    Button:
+        text: "Home"
+
+    Button:
+        text: "Weather"
+
+    Button:
+        text: "News"
+
+    Button:
+        text: "Dictionary"
+
+    Button:
+        text: "Currency"
+
+    Button:
+        text: "NASA"
+
+    Button:
+        text: "SpaceX"
+
+    Button:
+        text: "Pokemon"
+
+    Button:
+        text: "Jokes"
+
+    Widget:
+
+    Button:
+        text: "Settings"
+
+        size_hint_y: None
+
+        height: dp(45)

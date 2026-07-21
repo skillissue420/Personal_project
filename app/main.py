@@ -3,7 +3,9 @@ from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
 
-Window.size = (1200, 800)
+Window.size = (1400, 850)
+Window.minimum_width = 1100
+Window.minimum_height = 700
 
 
 class ChatScreen(BoxLayout):
@@ -16,6 +18,7 @@ class APIAssistant(App):
         self.title = "API Assistant"
 
         Builder.load_file("app/ui/chatbot.kv")
+        Builder.load_file("app/ui/sidebar.kv")
 
         return ChatScreen()
 
