@@ -10,6 +10,8 @@ Config.set("graphics", "minimum_width", "900")
 Config.set("graphics", "minimum_height", "600")
 Config.set("graphics", "resizable", "1")
 Config.set("graphics", "fullscreen", "0")
+# Treat right-click as a normal mouse action instead of Kivy's simulated touch.
+Config.set("input", "mouse", "mouse,disable_multitouch")
 
 from kivy.app import App
 from kivy.lang import Builder
@@ -42,7 +44,6 @@ class ChatScreen(BoxLayout):
     _theme_event = None
     page_title = StringProperty("Welcome to\nAPI Assistant")
     page_subtitle = StringProperty("Your friendly workspace for exploring useful public APIs.")
-    response_text = StringProperty("Choose a tool from the sidebar, or ask a question to get started.")
     is_loading = BooleanProperty(False)
     typing_dots = NumericProperty(1)
     chat_session = NumericProperty(0)
@@ -54,6 +55,8 @@ class ChatScreen(BoxLayout):
             "News": lambda: self.load_feature("news"), "Currency": lambda: self.load_feature("currency"),
             "Dictionary": lambda: self.load_feature("dictionary"), "NASA": lambda: self.load_feature("nasa"),
             "Countries": lambda: self.load_feature("countries"), "Jokes": lambda: self.load_feature("jokes"),
+            "Books": lambda: self.load_feature("books"), "Holidays": lambda: self.load_feature("holidays"),
+            "Art": lambda: self.load_feature("art"),
         }
         for button in self.walk():
             if isinstance(button, ThemedNavButton) and "Main Chat" in button.text:
@@ -64,9 +67,13 @@ class ChatScreen(BoxLayout):
                     if label in button.text:
                         button.bind(on_release=lambda _button, handler=action: handler())
                         break
+        self._add_message("assistant", "Choose a tool from the sidebar, or ask a question to get started.")
 
     def toggle_theme(self):
         self.dark_mode = not self.dark_mode
+        for message in self.ids.messages.children:
+            if isinstance(message, ChatMessage):
+                message.dark_mode = self.dark_mode
 
     def start_theme_transition(self, center):
         if self._theme_event:
@@ -95,13 +102,6 @@ class ChatScreen(BoxLayout):
         Animation(theme_ripple_opacity=0, duration=0.20, t="out_quad").start(self)
         self._theme_event = None
 
-    def load_feature(self, feature, query=""):
-        self.page_title = feature.title()
-        self.page_subtitle = "Fetching live information..."
-        self.response_text = "Please wait a moment."
-        self._start_typing_indicator()
-        Thread(target=self._fetch_feature, args=(feature, query, self.chat_session), daemon=True).start()
-
     def _fetch_feature(self, feature, query, session):
         try:
             title, response = fetch_feature(feature, query)
@@ -115,7 +115,7 @@ class ChatScreen(BoxLayout):
         self._stop_typing_indicator()
         self.page_title = title
         self.page_subtitle = "Live data from a public API"
-        self.response_text = response
+        self._add_message("assistant", response)
 
     def new_chat(self):
         """Clear the current session and keep focus in the message composer."""
@@ -123,7 +123,8 @@ class ChatScreen(BoxLayout):
         self._stop_typing_indicator()
         self.page_title = "Welcome to\nAPI Assistant"
         self.page_subtitle = "Your friendly workspace for exploring useful public APIs."
-        self.response_text = "Choose a tool from the sidebar, or ask a question to get started."
+        self.ids.messages.clear_widgets()
+        self._add_message("assistant", "Choose a tool from the sidebar, or ask a question to get started.")
         self.ids.query_input.text = ""
         Clock.schedule_once(lambda _dt: setattr(self.ids.query_input, "focus", True))
 
@@ -132,16 +133,21 @@ class ChatScreen(BoxLayout):
         self._stop_typing_indicator()
         self.page_title = "Main Chat"
         self.page_subtitle = "General conversation"
-        self.response_text = (
+        self.ids.messages.clear_widgets()
+        self._add_message("assistant", (
             "Hi! I can currently check live weather using Open-Meteo. "
             "Try: What is the weather in Tokyo?"
-        )
+        ))
         self.ids.query_input.text = ""
         Clock.schedule_once(lambda _dt: setattr(self.ids.query_input, "focus", True))
 
     def _start_typing_indicator(self):
         self.is_loading = True
         self.typing_dots = 1
+        # Keep the indicator directly below the latest message in the history.
+        self.ids.messages.remove_widget(self.ids.typing_row)
+        self.ids.messages.add_widget(self.ids.typing_row)
+        Clock.schedule_once(self._scroll_to_latest)
         if not self._typing_event:
             self._typing_event = Clock.schedule_interval(self._advance_typing_indicator, 0.35)
 
@@ -159,23 +165,40 @@ class ChatScreen(BoxLayout):
         if not query:
             return
         self.ids.query_input.text = ""
+        self._add_message("user", query)
         intent = detect_intent(query)
         if intent == "weather":
-            self.load_feature("weather", self._weather_location(query))
+            self.load_feature("weather", self._weather_location(query), show_request=False)
             return
         if intent:
-            self.load_feature(intent, intent_query(intent, query))
+            self.load_feature(intent, intent_query(intent, query), show_request=False)
             return
 
         self.page_title = "Main Chat"
         self.page_subtitle = "General conversation"
         if query.lower().strip("!?.") in {"hi", "hello", "hey"}:
-            self.response_text = "Hello! Ask me about the weather in any city."
+            self._add_message("assistant", "Hello! Ask me about the weather in any city.")
         else:
-            self.response_text = (
-                "I can route requests for weather, news, currency, definitions, NASA, countries, and jokes. "
-                'For example: "Convert USD to PHP" or "Define orbit".'
-            )
+            self._add_message("assistant", (
+                "I can route requests for weather, news, currency, definitions, NASA, countries, jokes, books, holidays, and art. "
+                'Try: "Find books about space", "Holidays in Japan", or "Art about cats".'
+            ))
+
+    def load_feature(self, feature, query="", show_request=True):
+        self.page_title = feature.title()
+        self.page_subtitle = "Fetching live information..."
+        if show_request:
+            self._add_message("user", query or f"Show me {feature}.")
+        self._start_typing_indicator()
+        Thread(target=self._fetch_feature, args=(feature, query, self.chat_session), daemon=True).start()
+
+    def _add_message(self, role, text):
+        message = ChatMessage(role=role, message_text=text, dark_mode=self.dark_mode)
+        self.ids.messages.add_widget(message)
+        Clock.schedule_once(self._scroll_to_latest)
+
+    def _scroll_to_latest(self, _dt):
+        self.ids.chat_scroll.scroll_y = 0
 
     @staticmethod
     def _weather_location(query):
@@ -194,6 +217,12 @@ class ChatScreen(BoxLayout):
 
 
 class ThemedNavButton(Button):
+    dark_mode = BooleanProperty(True)
+
+
+class ChatMessage(BoxLayout):
+    role = StringProperty("assistant")
+    message_text = StringProperty("")
     dark_mode = BooleanProperty(True)
 
 

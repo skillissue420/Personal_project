@@ -1,6 +1,9 @@
 """Route Explore features to their dedicated API clients."""
 
 from app.api.countries import get_country
+from app.api.books import search_books
+from app.api.holidays import get_holidays
+from app.api.art import search_art
 from app.api.currency import get_exchange_rate
 from app.api.dictionary import define_word
 from app.api.jokes import get_random_joke
@@ -17,6 +20,9 @@ FEATURES = {
     "nasa": lambda _="": get_astronomy_picture(),
     "countries": get_country,
     "jokes": lambda _="": get_random_joke(),
+    "books": search_books,
+    "holidays": get_holidays,
+    "art": search_art,
 }
 
 
